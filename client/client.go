@@ -1,5 +1,5 @@
-// Package main handles interactions with the Vend API.
-package main
+// Package client handles interactions with the Vend API.
+package client
 
 import (
 	"encoding/json"
@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/jtrotsky/govend/vend"
 )
 
 // Client contains API authentication details.
@@ -25,7 +27,7 @@ func NewClient(token, domainPrefix, tz string) Client {
 }
 
 // Registers gets all registers from a store.
-func (c Client) Registers() (*[]Register, error) {
+func (c Client) Registers() (*[]vend.Register, error) {
 
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "registers")
@@ -36,11 +38,11 @@ func (c Client) Registers() (*[]Register, error) {
 	}
 
 	// Decode the JSON into our defined register object.
-	response := RegisterPayload{}
+	response := vend.RegisterPayload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling Vend sale payload: %s", err)
-		return &[]Register{}, err
+		return &[]vend.Register{}, err
 	}
 
 	// Data is an array of register objects.
@@ -54,7 +56,7 @@ func (c Client) Registers() (*[]Register, error) {
 }
 
 // Users gets all users from a store.
-func (c Client) Users() (*[]User, error) {
+func (c Client) Users() (*[]vend.User, error) {
 
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "users")
@@ -65,11 +67,11 @@ func (c Client) Users() (*[]User, error) {
 	}
 
 	// Decode the JSON into our defined product object.
-	response := UserPayload{}
+	response := vend.UserPayload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling Vend sale payload: %s", err)
-		return &[]User{}, err
+		return &[]vend.User{}, err
 	}
 
 	// Data is an array of user objects.
@@ -83,10 +85,9 @@ func (c Client) Users() (*[]User, error) {
 }
 
 // Customers grabs and collates all customers in pages of 10,000.
-func (c Client) Customers() (*[]Customer, error) {
+func (c Client) Customers() (*[]vend.Customer, error) {
 
-	customers := []Customer{}
-	cp := []Customer{}
+	var customers, cp []vend.Customer
 	var v int64
 
 	// v is a version that is used to get customers by page.
@@ -99,7 +100,7 @@ func (c Client) Customers() (*[]Customer, error) {
 	customers = append(customers, cp...)
 
 	for len(cp) > 0 {
-		cp = []Customer{}
+		cp = []vend.Customer{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "customers")
@@ -118,11 +119,10 @@ func (c Client) Customers() (*[]Customer, error) {
 }
 
 // Products grabs and collates all products in pages of 10,000.
-func (c Client) Products() (*[]Product, error) {
+func (c Client) Products() (*[]vend.Product, error) {
 
-	products := []Product{}
-	p := []Product{}
-	data := []byte{}
+	var products, p []vend.Product
+	var data []byte
 	var v int64
 
 	// v is a version that is used to get products by page.
@@ -135,7 +135,7 @@ func (c Client) Products() (*[]Product, error) {
 	products = append(products, p...)
 
 	for len(p) > 0 {
-		p = []Product{}
+		p = []vend.Product{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "products")
@@ -154,10 +154,9 @@ func (c Client) Products() (*[]Product, error) {
 }
 
 // Sales grabs and collates all sales.
-func (c Client) Sales() (*[]Sale, error) {
+func (c Client) Sales() (*[]vend.Sale, error) {
 
-	var sales []Sale
-	var s []Sale
+	var sales, s []vend.Sale
 	var v int64
 
 	// v is a version that is used to objects by page.
@@ -172,7 +171,7 @@ func (c Client) Sales() (*[]Sale, error) {
 
 	// NOTE: Turns out empty response is 2bytes.
 	for len(data) > 2 {
-		s = []Sale{}
+		s = []vend.Sale{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "sales")
@@ -202,7 +201,7 @@ func resourcePage(version int64, domainPrefix, key,
 	}
 
 	// Decode the raw JSON.
-	response := Payload{}
+	response := vend.Payload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling payload: %s", err)

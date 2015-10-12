@@ -1,5 +1,5 @@
-// Package main handles interactions with the Vend API.
-package main
+// Package vend handles interactions with the Vend API.
+package vend
 
 import "time"
 
