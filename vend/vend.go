@@ -1,5 +1,5 @@
-// Package client handles interactions with the Vend API.
-package client
+// Package vend handles interactions with the Vend API.
+package vend
 
 import (
 	"encoding/json"
@@ -10,8 +10,6 @@ import (
 	"net/url"
 	"os"
 	"time"
-
-	"github.com/jtrotsky/govend/vend"
 )
 
 // Client contains API authentication details.
@@ -27,7 +25,7 @@ func NewClient(token, domainPrefix, tz string) Client {
 }
 
 // Registers gets all registers from a store.
-func (c Client) Registers() (*[]vend.Register, error) {
+func (c Client) Registers() (*[]Register, error) {
 
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "registers")
@@ -38,11 +36,11 @@ func (c Client) Registers() (*[]vend.Register, error) {
 	}
 
 	// Decode the JSON into our defined register object.
-	response := vend.RegisterPayload{}
+	response := RegisterPayload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling Vend sale payload: %s", err)
-		return &[]vend.Register{}, err
+		return &[]Register{}, err
 	}
 
 	// Data is an array of register objects.
@@ -56,7 +54,7 @@ func (c Client) Registers() (*[]vend.Register, error) {
 }
 
 // Users gets all users from a store.
-func (c Client) Users() (*[]vend.User, error) {
+func (c Client) Users() (*[]User, error) {
 
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "users")
@@ -67,11 +65,11 @@ func (c Client) Users() (*[]vend.User, error) {
 	}
 
 	// Decode the JSON into our defined product object.
-	response := vend.UserPayload{}
+	response := UserPayload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling Vend sale payload: %s", err)
-		return &[]vend.User{}, err
+		return &[]User{}, err
 	}
 
 	// Data is an array of user objects.
@@ -85,9 +83,9 @@ func (c Client) Users() (*[]vend.User, error) {
 }
 
 // Customers grabs and collates all customers in pages of 10,000.
-func (c Client) Customers() (*[]vend.Customer, error) {
+func (c Client) Customers() (*[]Customer, error) {
 
-	var customers, cp []vend.Customer
+	var customers, cp []Customer
 	var v int64
 
 	// v is a version that is used to get customers by page.
@@ -100,7 +98,7 @@ func (c Client) Customers() (*[]vend.Customer, error) {
 	customers = append(customers, cp...)
 
 	for len(cp) > 0 {
-		cp = []vend.Customer{}
+		cp = []Customer{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "customers")
@@ -119,9 +117,9 @@ func (c Client) Customers() (*[]vend.Customer, error) {
 }
 
 // Products grabs and collates all products in pages of 10,000.
-func (c Client) Products() (*[]vend.Product, error) {
+func (c Client) Products() (*[]Product, error) {
 
-	var products, p []vend.Product
+	var products, p []Product
 	var data []byte
 	var v int64
 
@@ -135,7 +133,7 @@ func (c Client) Products() (*[]vend.Product, error) {
 	products = append(products, p...)
 
 	for len(p) > 0 {
-		p = []vend.Product{}
+		p = []Product{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "products")
@@ -154,9 +152,9 @@ func (c Client) Products() (*[]vend.Product, error) {
 }
 
 // Sales grabs and collates all sales.
-func (c Client) Sales() (*[]vend.Sale, error) {
+func (c Client) Sales() (*[]Sale, error) {
 
-	var sales, s []vend.Sale
+	var sales, s []Sale
 	var v int64
 
 	// v is a version that is used to objects by page.
@@ -171,7 +169,7 @@ func (c Client) Sales() (*[]vend.Sale, error) {
 
 	// NOTE: Turns out empty response is 2bytes.
 	for len(data) > 2 {
-		s = []vend.Sale{}
+		s = []Sale{}
 
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "sales")
@@ -201,7 +199,7 @@ func resourcePage(version int64, domainPrefix, key,
 	}
 
 	// Decode the raw JSON.
-	response := vend.Payload{}
+	response := Payload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling payload: %s", err)

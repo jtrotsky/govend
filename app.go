@@ -5,7 +5,7 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/jtrotsky/govend/client"
+	"github.com/jtrotsky/govend/vend"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 )
 
 func main() {
-	client.NewClient(token, domainPrefix, tz)
+	vend.NewClient(token, domainPrefix, tz)
 }
 
 func init() {
