@@ -116,6 +116,74 @@ func (c Client) Customers() (*[]Customer, error) {
 	return &customers, err
 }
 
+// Consignments gets all stock consignments and transfers from a store.
+func (c Client) Consignments() (*[]Consignment, error) {
+	// Build the URL for the consignment page.
+	url := urlFactory(0, c.DomainPrefix, "", "consignments")
+
+	body, err := urlGet(c.Token, url)
+	if err != nil {
+		fmt.Printf("Error getting resource: %s", err)
+	}
+
+	// Decode the JSON into our defined consignment object.
+	response := ConsignmentPayload{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Printf("\nError unmarshalling Vend consignment payload: %s", err)
+		return &[]Consignment{}, err
+	}
+
+	// Data is an array of register objects.
+	data := response.Data
+
+	// Do not expect more than one page of registers.
+	// TODO: Consider including check for multiple pages.
+	// version = response.Version["max"]
+
+	return &data, err
+}
+
+// ConsignmentProducts gets all stock consignments and transfers from a store.
+func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]ConsignmentProduct, error) {
+
+	// var err error
+	// var data response.Data
+	response := ConsignmentProductPayload{}
+	data := response.Data
+	var URL string
+	for _, consignment := range *consignments {
+
+		if *consignment.Status == "CANCELLED" {
+			continue
+		}
+		// Build the URL for the consignment product page.
+		URL = urlFactory(0, c.DomainPrefix, *consignment.ID, "consignments")
+
+		body, err := urlGet(c.Token, URL)
+		if err != nil {
+			fmt.Printf("Error getting resource: %s", err)
+		}
+
+		response = ConsignmentProductPayload{}
+		// Decode the JSON into our defined consignment object.
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			fmt.Printf("\nError unmarshalling Vend consignment payload: %s", err)
+			return &[]ConsignmentProduct{}, err
+		}
+
+		// Data is an array of register objects.
+		data = response.Data
+
+		// Do not expect more than one page of registers.
+		// TODO: Consider including check for multiple pages.
+		// version = response.Version["max"]
+	}
+
+	return &data, nil
+}
+
 // Products grabs and collates all products in pages of 10,000.
 func (c Client) Products() (*[]Product, error) {
 
