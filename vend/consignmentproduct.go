@@ -3,16 +3,17 @@ package vend
 
 import "time"
 
-// ConsignmentProductPayload contains register data and versioning info.
+// ConsignmentProductPayload contains data and versioning info.
 type ConsignmentProductPayload struct {
 	Data    []ConsignmentProduct `json:"data,omitempty"`
 	Version map[string]int64     `json:"version,omitempty"`
 }
 
-// ConsignmentProduct is a register object.
+// ConsignmentProduct ...
 type ConsignmentProduct struct {
-	ProductID *string `json:"id,omitempty"`
-	Sku       *string `json:"product_sku,omitempty"`
+	ProductID *string `json:"product_id,omitempty"`
+	SKU       *string `json:"product_sku,omitempty"`
+	// Count *string `json:""`
 	// Name      *string    `json:"name,omitempty"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
