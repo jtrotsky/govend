@@ -149,6 +149,8 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 
 	// var err error
 	// var data response.Data
+	consignmentProducts := []ConsignmentProduct{}
+
 	response := ConsignmentProductPayload{}
 	data := response.Data
 	var URL string
@@ -165,7 +167,6 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 			fmt.Printf("Error getting resource: %s", err)
 		}
 
-		response = ConsignmentProductPayload{}
 		// Decode the JSON into our defined consignment object.
 		err = json.Unmarshal(body, &response)
 		if err != nil {
@@ -173,15 +174,30 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 			return &[]ConsignmentProduct{}, err
 		}
 
-		// Data is an array of register objects.
+		// Data is an array of consignment product objects.
 		data = response.Data
+
+		// Append each lot of consignment products to our list.
+		consignmentProducts = append(consignmentProducts, data...)
 
 		// Do not expect more than one page of registers.
 		// TODO: Consider including check for multiple pages.
 		// version = response.Version["max"]
 	}
 
-	return &data, nil
+	return &consignmentProducts, nil
+}
+
+// ConsignmentProductMap is useful because there is no consignment_id on
+// the consignment product payload. This creates the association.
+func ConsignmentProductMap(consignmentProducts *[]ConsignmentProduct) *map[string]ConsignmentProduct {
+	consignmentProductMap := make(map[string]ConsignmentProduct)
+
+	for _, product := range *consignmentProducts {
+		consignmentProductMap[*product.ProductID] = product
+	}
+
+	return &consignmentProductMap
 }
 
 // Products grabs and collates all products in pages of 10,000.
