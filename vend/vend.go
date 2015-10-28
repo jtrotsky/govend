@@ -1,3 +1,7 @@
+// TODO:
+// Map needs to take consignment ID and match it to consignment products.
+// Might need to include it in the consignment function.
+
 // Package vend handles interactions with the Vend API.
 package vend
 
@@ -145,20 +149,28 @@ func (c Client) Consignments() (*[]Consignment, error) {
 }
 
 // ConsignmentProducts gets all stock consignments and transfers from a store.
-func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]ConsignmentProduct, error) {
+func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]ConsignmentProduct,
+	*map[string][]ConsignmentProduct, error) {
 
 	// var err error
 	// var data response.Data
 	consignmentProducts := []ConsignmentProduct{}
+	consignmentProductMap := make(map[string][]ConsignmentProduct)
 
-	response := ConsignmentProductPayload{}
-	data := response.Data
 	var URL string
+
 	for _, consignment := range *consignments {
 
+		response := ConsignmentProductPayload{}
+		data := response.Data
+
+		// Check and ignore cancelled consignments.
+		// This is because we cannot yet request these (other than explicitly)
+		// from api/2.0/consignments.
 		if *consignment.Status == "CANCELLED" {
 			continue
 		}
+
 		// Build the URL for the consignment product page.
 		URL = urlFactory(0, c.DomainPrefix, *consignment.ID, "consignments")
 
@@ -171,11 +183,15 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 		err = json.Unmarshal(body, &response)
 		if err != nil {
 			fmt.Printf("\nError unmarshalling Vend consignment payload: %s", err)
-			return &[]ConsignmentProduct{}, err
+			return &[]ConsignmentProduct{}, nil, err
 		}
 
 		// Data is an array of consignment product objects.
 		data = response.Data
+
+		for _, product := range data {
+			consignmentProductMap[*consignment.ID] = append(consignmentProductMap[*consignment.ID], product)
+		}
 
 		// Append each lot of consignment products to our list.
 		consignmentProducts = append(consignmentProducts, data...)
@@ -185,25 +201,14 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 		// version = response.Version["max"]
 	}
 
-	return &consignmentProducts, nil
-}
-
-// ConsignmentProductMap is useful because there is no consignment_id on
-// the consignment product payload. This creates the association.
-func ConsignmentProductMap(consignmentProducts *[]ConsignmentProduct) *map[string]ConsignmentProduct {
-	consignmentProductMap := make(map[string]ConsignmentProduct)
-
-	for _, product := range *consignmentProducts {
-		consignmentProductMap[*product.ProductID] = product
-	}
-
-	return &consignmentProductMap
+	return &consignmentProducts, &consignmentProductMap, nil
 }
 
 // Products grabs and collates all products in pages of 10,000.
-func (c Client) Products() (*[]Product, error) {
+func (c Client) Products() (*[]Product, *map[string][]Product, error) {
 
 	var products, p []Product
+	productMap := make(map[string][]Product)
 	var data []byte
 	var v int64
 
@@ -222,17 +227,21 @@ func (c Client) Products() (*[]Product, error) {
 		// Continue grabbing pages until we receive an empty one.
 		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "products")
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		// Unmarshal payload into product object.
 		err = json.Unmarshal(data, &p)
 
+		for _, product := range p {
+			productMap[*product.ID] = append(productMap[*product.ID], product)
+		}
+
 		// Append page to list.
 		products = append(products, p...)
 	}
 
-	return &products, err
+	return &products, &productMap, err
 }
 
 // Sales grabs and collates all sales.
