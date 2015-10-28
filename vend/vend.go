@@ -28,6 +28,31 @@ func NewClient(token, domainPrefix, tz string) Client {
 	return Client{token, domainPrefix, tz}
 }
 
+// Outlets gets all outlets from a store.
+func (c Client) Outlets() (*[]Outlet, error) {
+
+	// Build the URL for the outlet page.
+	url := urlFactory(0, c.DomainPrefix, "", "outlets")
+
+	body, err := urlGet(c.Token, url)
+	if err != nil {
+		fmt.Printf("Error getting resource: %s", err)
+	}
+
+	// Decode the JSON into our defined outlet object.
+	response := OutletPayload{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Printf("\nError unmarshalling Vend outlet payload: %s", err)
+		return &[]Outlet{}, err
+	}
+
+	// Data is an array of outlet objects.
+	data := response.Data
+
+	return &data, err
+}
+
 // Registers gets all registers from a store.
 func (c Client) Registers() (*[]Register, error) {
 
@@ -43,7 +68,7 @@ func (c Client) Registers() (*[]Register, error) {
 	response := RegisterPayload{}
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Printf("\nError unmarshalling Vend sale payload: %s", err)
+		fmt.Printf("\nError unmarshalling Vend register payload: %s", err)
 		return &[]Register{}, err
 	}
 
