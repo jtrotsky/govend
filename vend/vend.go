@@ -29,7 +29,7 @@ func NewClient(token, domainPrefix, tz string) Client {
 }
 
 // Outlets gets all outlets from a store.
-func (c Client) Outlets() (*[]Outlet, error) {
+func (c Client) Outlets() (*[]Outlet, *map[string][]Outlet, error) {
 
 	// Build the URL for the outlet page.
 	url := urlFactory(0, c.DomainPrefix, "", "outlets")
@@ -44,13 +44,18 @@ func (c Client) Outlets() (*[]Outlet, error) {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("\nError unmarshalling Vend outlet payload: %s", err)
-		return &[]Outlet{}, err
+		return &[]Outlet{}, nil, err
 	}
 
 	// Data is an array of outlet objects.
 	data := response.Data
 
-	return &data, err
+	outletMap := make(map[string][]Outlet)
+	for _, outlet := range data {
+		outletMap[*outlet.ID] = append(outletMap[*outlet.ID], outlet)
+	}
+
+	return &data, &outletMap, err
 }
 
 // Registers gets all registers from a store.
@@ -230,10 +235,10 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 }
 
 // Products grabs and collates all products in pages of 10,000.
-func (c Client) Products() (*[]Product, *map[string][]Product, error) {
+func (c Client) Products() (*[]Product, *map[string]Product, error) {
 
+	productMap := make(map[string]Product)
 	var products, p []Product
-	productMap := make(map[string][]Product)
 	var data []byte
 	var v int64
 
@@ -258,15 +263,23 @@ func (c Client) Products() (*[]Product, *map[string][]Product, error) {
 		// Unmarshal payload into product object.
 		err = json.Unmarshal(data, &p)
 
-		for _, product := range p {
-			productMap[*product.ID] = append(productMap[*product.ID], product)
-		}
-
 		// Append page to list.
 		products = append(products, p...)
 	}
 
+	productMap = buildProductMap(products)
+
 	return &products, &productMap, err
+}
+
+func buildProductMap(products []Product) map[string]Product {
+	productMap := make(map[string]Product)
+
+	for _, product := range products {
+		productMap[*product.ID] = product
+	}
+
+	return productMap
 }
 
 // Sales grabs and collates all sales.
