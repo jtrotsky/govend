@@ -13,7 +13,7 @@ type ConsignmentProductPayload struct {
 type ConsignmentProduct struct {
 	ProductID *string `json:"product_id,omitempty"`
 	SKU       *string `json:"product_sku,omitempty"`
-	// Count *string `json:""`
+	Count     *string `json:"count_omitempty"`
 	// Name      *string    `json:"name,omitempty"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
