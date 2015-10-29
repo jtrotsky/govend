@@ -16,7 +16,7 @@ type Consignment struct {
 	Name            *string    `json:"name,omitempty"`
 	Type            *string    `json:"type,omitempty"`
 	Status          *string    `json:"status,omitempty"`
-	ConsignmentDate *time.Time `json:"consignment_date,omitempty"`
+	ConsignmentDate *string    `json:"consignment_date,omitempty"` // NOTE: Using string for ParseVendDT.
 	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
 }
 
