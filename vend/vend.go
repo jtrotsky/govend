@@ -152,30 +152,38 @@ func (c Client) Customers() (*[]Customer, error) {
 
 // Consignments gets all stock consignments and transfers from a store.
 func (c Client) Consignments() (*[]Consignment, error) {
-	// Build the URL for the consignment page.
-	url := urlFactory(0, c.DomainPrefix, "", "consignments")
 
-	body, err := urlGet(c.Token, url)
-	if err != nil {
-		fmt.Printf("Error getting resource: %s", err)
+	var consignments, co []Consignment
+	var v int64
+
+	// v is a version that is used to objects by page.
+	// Here we get the first page.
+	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "consignments")
+
+	// Unmarshal payload into sales object.
+	err = json.Unmarshal(data, &co)
+
+	// Append page to list.
+	consignments = append(consignments, co...)
+
+	// NOTE: Turns out empty response is 2bytes.
+	for len(data) > 2 {
+		co = []Consignment{}
+
+		// Continue grabbing pages until we receive an empty one.
+		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "consignments")
+		if err != nil {
+			return nil, err
+		}
+
+		// Unmarshal payload into sales object.
+		err = json.Unmarshal(data, &co)
+
+		// Append page to list.
+		consignments = append(consignments, co...)
 	}
 
-	// Decode the JSON into our defined consignment object.
-	response := ConsignmentPayload{}
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		fmt.Printf("\nError unmarshalling Vend consignment payload: %s", err)
-		return &[]Consignment{}, err
-	}
-
-	// Data is an array of register objects.
-	data := response.Data
-
-	// Do not expect more than one page of registers.
-	// TODO: Consider including check for multiple pages.
-	// version = response.Version["max"]
-
-	return &data, err
+	return &consignments, err
 }
 
 // ConsignmentProducts gets all stock consignments and transfers from a store.
