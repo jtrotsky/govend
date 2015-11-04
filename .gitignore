@@ -1,4 +1,9 @@
 govend
 
+*.csv
+*.exe
+*.sh
+*.txt
+
 .DS_Store
 .~lock.*
