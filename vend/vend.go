@@ -390,7 +390,7 @@ func urlGet(key, url string) ([]byte, error) {
 	defer res.Body.Close()
 
 	// Check for invalid status codes.
-	responseCheck(res.StatusCode)
+	ResponseCheck(res.StatusCode)
 
 	// Read what we got back.
 	body, err := ioutil.ReadAll(res.Body)
@@ -402,11 +402,14 @@ func urlGet(key, url string) ([]byte, error) {
 	return body, err
 }
 
-// responseCheck checks the HTTP status codes of responses.
-func responseCheck(statusCode int) {
+// ResponseCheck checks the HTTP status codes of responses.
+func ResponseCheck(statusCode int) {
 	switch statusCode {
 	case 200:
 	// 	Response is bueno.
+	case 201:
+		// Response is beuno.
+		// Resource created.
 	case 401:
 		fmt.Printf("\nAccess denied - check personal API token. Status: %d",
 			statusCode)
@@ -457,6 +460,14 @@ func urlFactory(version int64, domainPrefix, objectID, resource string) string {
 	}
 
 	return address
+}
+
+// ImageUploadURLFactory creates the Vend URL for uploading an image.
+// TODO: Naming?
+func ImageUploadURLFactory(domainPrefix, productID string) string {
+	url := fmt.Sprintf("https://%s.vendhq.com/api/2.0/products/%s/actions/image_upload",
+		domainPrefix, productID)
+	return url
 }
 
 // ParseVendDT converts the default Vend timestamp string into a
