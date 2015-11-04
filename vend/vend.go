@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -371,10 +372,19 @@ func urlGet(key, url string) ([]byte, error) {
 
 	log.Printf("Grabbing: %s\n", url)
 	// Doing the request.
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("\nError performing request: %s", err)
-		return nil, err
+	var attempt int
+	var res *http.Response
+	for {
+		res, err = client.Do(req)
+		if err != nil {
+			fmt.Printf("\nError performing request: %s", err)
+			// Delays between attempts will be exponentially longer each time.
+			attempt++
+			delay := backoffDuration(attempt)
+			time.Sleep(delay)
+		} else {
+			break
+		}
 	}
 	// Make sure response body is closed at end.
 	defer res.Body.Close()
@@ -394,8 +404,6 @@ func urlGet(key, url string) ([]byte, error) {
 
 // responseCheck checks the HTTP status codes of responses.
 func responseCheck(statusCode int) {
-
-	// Check HTTP response status codes.
 	switch statusCode {
 	case 200:
 	// 	Response is bueno.
@@ -415,6 +423,15 @@ func responseCheck(statusCode int) {
 			statusCode)
 		os.Exit(0)
 	}
+}
+
+// TODO:
+func backoffDuration(attempt int) time.Duration {
+	if attempt <= 0 {
+		attempt = 1
+	}
+	seconds := math.Pow(float64(attempt), 3.5) + 5
+	return time.Second * time.Duration(seconds)
 }
 
 // urlFactory creates a Vend API 2.0 URL based on a resource.
