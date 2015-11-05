@@ -402,16 +402,20 @@ func urlGet(key, url string) ([]byte, error) {
 }
 
 // ResponseCheck checks the HTTP status codes of responses.
-func ResponseCheck(statusCode int) {
+func ResponseCheck(statusCode int) bool {
 	switch statusCode {
 	case 200:
-	// 	Response is bueno.
+		// 	Response is bueno.
+		return true
 	case 201:
 		// Response is beuno.
 		// Resource created.
+		return true
 	case 401:
 		fmt.Printf("\nAccess denied - check personal API token. Status: %d",
 			statusCode)
+		// No point continuing if we get access denied.
+		// TODO: Confirm if we should just exit.
 	case 404:
 		fmt.Printf("\nURL not found - check domain prefix. Status: %d",
 			statusCode)
@@ -427,6 +431,7 @@ func ResponseCheck(statusCode int) {
 		fmt.Printf("\nGot an unknown status code - Google it. Status: %d",
 			statusCode)
 	}
+	return false
 }
 
 // BackoffDuration ...
