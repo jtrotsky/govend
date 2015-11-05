@@ -379,7 +379,7 @@ func urlGet(key, url string) ([]byte, error) {
 			fmt.Printf("\nError performing request: %s", err)
 			// Delays between attempts will be exponentially longer each time.
 			attempt++
-			delay := backoffDuration(attempt)
+			delay := BackoffDuration(attempt)
 			time.Sleep(delay)
 		} else {
 			break
@@ -429,8 +429,8 @@ func ResponseCheck(statusCode int) {
 	}
 }
 
-// TODO:
-func backoffDuration(attempt int) time.Duration {
+// BackoffDuration ...
+func BackoffDuration(attempt int) time.Duration {
 	if attempt <= 0 {
 		attempt = 1
 	}
