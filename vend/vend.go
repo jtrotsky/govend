@@ -423,7 +423,8 @@ func ResponseCheck(statusCode int) bool {
 		// TODO: Should include 429 for backoffDuration?
 		fmt.Printf("\nRate limited by the Vend API :S Status: %d",
 			statusCode)
-	case 500:
+	case 500 || 502:
+		// TODO: Should mix these?
 		// Server error.
 		fmt.Printf("\nServer error. Status: %d",
 			statusCode)
