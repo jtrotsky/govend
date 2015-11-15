@@ -1,4 +1,3 @@
-// Package main ...
 package main
 
 import (
@@ -20,7 +19,7 @@ func main() {
 
 func init() {
 
-	// Get store info from command line flags.
+	// Get auth and retailer info from command line flags.
 	flag.StringVar(&domainPrefix, "d", "",
 		"The Vend store name (prefix of xxxx.vendhq.com)")
 	flag.StringVar(&token, "t", "",
@@ -33,6 +32,4 @@ func init() {
 	// Split DomainPrefix on the "." period character then grab the first part.
 	parts := strings.Split(domainPrefix, ".")
 	domainPrefix = parts[0]
-
-	// TODO: Process timezone info.
 }
