@@ -298,7 +298,8 @@ func (c Client) Sales() (*[]Sale, error) {
 
 	// v is a version that is used to objects by page.
 	// Here we get the first page.
-	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "sales")
+	// TODO: hardcoded version here
+	data, v, err := resourcePage(154859918, c.DomainPrefix, c.Token, "sales")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &s)
@@ -367,7 +368,7 @@ func urlGet(key, url string) ([]byte, error) {
 
 	// Using personal token authentication.
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", key))
-	// TODO: Set user agent?
+	req.Header.Set("User-Agent", "govend")
 
 	log.Printf("Grabbing: %s\n", url)
 	// Doing the request.
