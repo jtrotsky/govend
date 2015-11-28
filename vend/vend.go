@@ -298,8 +298,7 @@ func (c Client) Sales() (*[]Sale, error) {
 
 	// v is a version that is used to objects by page.
 	// Here we get the first page.
-	// TODO: hardcoded version here
-	data, v, err := resourcePage(154859918, c.DomainPrefix, c.Token, "sales")
+	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "sales")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &s)
