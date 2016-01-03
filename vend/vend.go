@@ -34,7 +34,7 @@ func (c Client) Outlets() (*[]Outlet, *map[string][]Outlet, error) {
 	// Build the URL for the outlet page.
 	url := urlFactory(0, c.DomainPrefix, "", "outlets")
 
-	body, err := urlGet(c.Token, url)
+	body, err := GetURL(c.Token, url)
 	if err != nil {
 		fmt.Printf("Error getting resource: %s", err)
 	}
@@ -64,7 +64,7 @@ func (c Client) Registers() (*[]Register, error) {
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "registers")
 
-	body, err := urlGet(c.Token, url)
+	body, err := GetURL(c.Token, url)
 	if err != nil {
 		fmt.Printf("Error getting resource: %s", err)
 	}
@@ -93,7 +93,7 @@ func (c Client) Users() (*[]User, error) {
 	// Build the URL for the register page.
 	url := urlFactory(0, c.DomainPrefix, "", "users")
 
-	body, err := urlGet(c.Token, url)
+	body, err := GetURL(c.Token, url)
 	if err != nil {
 		fmt.Printf("Error getting resource: %s", err)
 	}
@@ -212,7 +212,7 @@ func (c Client) ConsignmentProducts(consignments *[]Consignment) (*[]Consignment
 		// Build the URL for the consignment product page.
 		URL = urlFactory(0, c.DomainPrefix, *consignment.ID, "consignments")
 
-		body, err := urlGet(c.Token, URL)
+		body, err := GetURL(c.Token, URL)
 		if err != nil {
 			fmt.Printf("Error getting resource: %s", err)
 		}
@@ -326,13 +326,14 @@ func (c Client) Sales() (*[]Sale, error) {
 	return &sales, err
 }
 
-func resourcePage(version int64, domainPrefix, key,
+// Gets a single page of data from a 2.0 API resource.
+func ResourcePage(version int64, domainPrefix, key,
 	resource string) ([]byte, int64, error) {
 
 	// Build the URL for the resource page.
 	url := urlFactory(version, domainPrefix, "", resource)
 
-	body, err := urlGet(key, url)
+	body, err := GetURL(key, url)
 	if err != nil {
 		fmt.Printf("Error getting resource: %s", err)
 	}
@@ -354,8 +355,8 @@ func resourcePage(version int64, domainPrefix, key,
 	return data, version, err
 }
 
-// urlGet performs a get request on a Vend API endpoint.
-func urlGet(key, url string) ([]byte, error) {
+// GetURL performs a get request on a Vend API endpoint.
+func GetURL(key, url string) ([]byte, error) {
 
 	client := &http.Client{}
 
