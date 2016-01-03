@@ -124,7 +124,7 @@ func (c Client) Customers() (*[]Customer, error) {
 
 	// v is a version that is used to get customers by page.
 	// Here we get the first page.
-	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "customers")
+	data, v, err := ResourcePage(0, c.DomainPrefix, c.Token, "customers")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &cp)
@@ -135,7 +135,7 @@ func (c Client) Customers() (*[]Customer, error) {
 		cp = []Customer{}
 
 		// Continue grabbing pages until we receive an empty one.
-		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "customers")
+		data, v, err = ResourcePage(v, c.DomainPrefix, c.Token, "customers")
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +158,7 @@ func (c Client) Consignments() (*[]Consignment, error) {
 
 	// v is a version that is used to objects by page.
 	// Here we get the first page.
-	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "consignments")
+	data, v, err := ResourcePage(0, c.DomainPrefix, c.Token, "consignments")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &co)
@@ -171,7 +171,7 @@ func (c Client) Consignments() (*[]Consignment, error) {
 		co = []Consignment{}
 
 		// Continue grabbing pages until we receive an empty one.
-		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "consignments")
+		data, v, err = ResourcePage(v, c.DomainPrefix, c.Token, "consignments")
 		if err != nil {
 			return nil, err
 		}
@@ -252,7 +252,7 @@ func (c Client) Products() (*[]Product, *map[string]Product, error) {
 
 	// v is a version that is used to get products by page.
 	// Here we get the first page.
-	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "products")
+	data, v, err := ResourcePage(0, c.DomainPrefix, c.Token, "products")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &p)
@@ -263,7 +263,7 @@ func (c Client) Products() (*[]Product, *map[string]Product, error) {
 		p = []Product{}
 
 		// Continue grabbing pages until we receive an empty one.
-		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "products")
+		data, v, err = ResourcePage(v, c.DomainPrefix, c.Token, "products")
 		if err != nil {
 			return nil, nil, err
 		}
@@ -298,7 +298,7 @@ func (c Client) Sales() (*[]Sale, error) {
 
 	// v is a version that is used to objects by page.
 	// Here we get the first page.
-	data, v, err := resourcePage(0, c.DomainPrefix, c.Token, "sales")
+	data, v, err := ResourcePage(0, c.DomainPrefix, c.Token, "sales")
 
 	// Unmarshal payload into sales object.
 	err = json.Unmarshal(data, &s)
@@ -311,7 +311,7 @@ func (c Client) Sales() (*[]Sale, error) {
 		s = []Sale{}
 
 		// Continue grabbing pages until we receive an empty one.
-		data, v, err = resourcePage(v, c.DomainPrefix, c.Token, "sales")
+		data, v, err = ResourcePage(v, c.DomainPrefix, c.Token, "sales")
 		if err != nil {
 			return nil, err
 		}
@@ -326,7 +326,7 @@ func (c Client) Sales() (*[]Sale, error) {
 	return &sales, err
 }
 
-// Gets a single page of data from a 2.0 API resource.
+// ResourcePage gets a single page of data from a 2.0 API resource.
 func ResourcePage(version int64, domainPrefix, key,
 	resource string) ([]byte, int64, error) {
 
