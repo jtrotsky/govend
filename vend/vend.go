@@ -13,6 +13,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -416,10 +417,11 @@ func ResponseCheck(statusCode int) bool {
 		fmt.Printf("\nAccess denied - check personal API token. Status: %d",
 			statusCode)
 		// No point continuing if we get access denied.
-		// TODO: Confirm if we should just exit.
+		os.Exit(0)
 	case 404:
 		fmt.Printf("\nURL not found - check domain prefix. Status: %d",
 			statusCode)
+		os.Exit(0)
 	case 429:
 		// TODO: Should include 429 for backoffDuration?
 		fmt.Printf("\nRate limited by the Vend API :S Status: %d",
@@ -429,6 +431,7 @@ func ResponseCheck(statusCode int) bool {
 		// Server error.
 		fmt.Printf("\nServer error. Status: %d",
 			statusCode)
+		os.Exit(0)
 	default:
 		fmt.Printf("\nGot an unknown status code - Google it. Status: %d",
 			statusCode)
