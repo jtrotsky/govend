@@ -371,7 +371,7 @@ func GetURL(key, url string) ([]byte, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", key))
 	req.Header.Set("User-Agent", "govend")
 
-	// log.Printf("Grabbing: %s\n", url)
+	log.Printf("Grabbing: %s\n", url)
 	// Doing the request.
 	var attempt int
 	var res *http.Response
