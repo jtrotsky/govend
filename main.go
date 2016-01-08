@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"strings"
 
 	"github.com/jtrotsky/govend/vend"
@@ -18,6 +19,7 @@ func main() {
 }
 
 func init() {
+	log.SetOutput(os.Stderr)
 
 	// Get auth and retailer info from command line flags.
 	flag.StringVar(&domainPrefix, "d", "",
