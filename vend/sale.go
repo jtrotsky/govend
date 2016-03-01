@@ -28,7 +28,7 @@ type Sale struct {
 	LineItems       *[]LineItem `json:"line_items,omitempty"`
 	Payments        *[]Payment  `json:"payments,omitempty"`
 	Taxes           *[]Tax      `json:"taxes,omitempty"`
-	Version         *int64      `json:"version,omitempty"`
+	VersionNumber   *int64      `json:"version,omitempty"`
 }
 
 // LineItem is a product on a sale.
